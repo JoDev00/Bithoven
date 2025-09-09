@@ -10,6 +10,7 @@ def initialize_grid():
     grid_x = []
     grid_y = []
     grid = []
+    top_row_of_tiles = []
 
     print("Place your cursor at the bottom left corner")
     time.sleep(2)
@@ -36,13 +37,14 @@ def initialize_grid():
             grid_y.append(y_coordinate)
             grid.append((x_coordinate, y_coordinate))
 
-    print(len(grid))
-    for i in grid:
-        print(i)
+    for i in range(len(grid)):
+        if i == 0 or i % 4 == 0:
+            top_row_of_tiles.append(grid[i])
 
-    for coordinate in grid:
+    for coordinate in top_row_of_tiles:
         pyautogui.moveTo(coordinate, duration=0)
         time.sleep(0)
+
 
 if __name__ == '__main__':
     main()

@@ -5,76 +5,40 @@ import sys
 import keyboard
 import mouse
 
-TILE_SEGMENTS = 4
-
 def main():
-    window_positions = initialize_window_positions()
-    grid = initialize_grid(window_positions[0], window_positions[1], window_positions[2], window_positions[3])
+    window_dimensions = (200, 951), (640, 165)
+    grid_matrix = initialize_grid_matrix(window_dimensions)
+    scan_for_black_tiles(grid_matrix)
+    game_loop(grid_matrix)
 
-    print("Press a to commence, or q to exit")
-    while True:
-        print(pyautogui.pixel(pyautogui.position()[0], pyautogui.position()[1]))
+def game_loop(grid_matrix):
+    while not keyboard.is_pressed('q'):
+        scan_for_black_tiles(grid_matrix)
 
-        if keyboard.is_pressed("q"):
-            print("Exiting program")
-            sys.exit()
+    sys.exit()
 
-        if keyboard.is_pressed("a"):
-            game_loop(grid)
-
-def game_loop(grid):
-    # The tiles we want to keep the closest attention on
-    top_row_of_tiles = []
-    for i in range(len(grid)):
-        if i == 0 or i % 4 == 0:
-            top_row_of_tiles.append(grid[i])
-
-    while True:
-        for coordinate in top_row_of_tiles:
-            if pyscreeze.pixelMatchesColor(coordinate[0], coordinate[1], (0, 0, 0)):
-                pyautogui.mouseDown(x=coordinate[0], y=coordinate[1] + 50, button="left")
+def scan_for_black_tiles(grid_matrix):
+    # bottom to top (priority)
+    for row in reversed(grid_matrix):
+        for coordinate in row:
+            if pyautogui.pixelMatchesColor(x=coordinate[0], y=coordinate[1], expectedRGBColor=(0, 0, 0)):
+                print(f"detected black tile coordinate: {coordinate}")
+                pyautogui.mouseDown(x=coordinate[0], y=coordinate[1], button="left")
                 time.sleep(0.01)
-                pyautogui.mouseUp(x=coordinate[0], y=coordinate[1] + 50, button="left")
-                continue
+                pyautogui.mouseUp(x=coordinate[0], y=coordinate[1], button="left")
 
-        if keyboard.is_pressed("q"):
-            print("Exiting program")
-            sys.exit()
+# for now, i'll manually put in the tile positions, but it will be configurable later
+def initialize_grid_matrix(window_dimensions):
+    # these get initialized to tuples later, but for readability this works for my purposes
 
-def initialize_grid(x_start, x_end, y_start, y_end):
-    grid_x = []
-    grid_y = []
-    grid = []
-
-    grid_dimensions = (x_end - x_start, y_start - y_end)
-    tile_width = (grid_dimensions[0] / TILE_SEGMENTS, grid_dimensions[1] / TILE_SEGMENTS)
-
-    print(f"grid_dimensions: {grid_dimensions}, tile_width: {tile_width}")
-    for x in range(TILE_SEGMENTS):
-        x_coordinate = (x_start + tile_width[0] * (x + 0.5))
-        grid_x.append(x_coordinate)
-        for y in range(TILE_SEGMENTS):
-            y_coordinate = (y_end + tile_width[1] * (y + 0.5))
-            grid_y.append(y_coordinate)
-            grid.append((x_coordinate, y_coordinate))
-
-    return grid
-
-def initialize_window_positions():
-    print("Place your cursor at the bottom left corner")
-    time.sleep(2)
-    x_start = pyautogui.position().x
-    y_start = pyautogui.position().y
-
-    print("\nPlace your cursor at the top right corner")
-    time.sleep(2)
-    x_end = pyautogui.position().x
-    y_end = pyautogui.position().y
-
-    print(f"x_start = {x_start}, y_start = {y_start}")
-    print(f"x_end = {x_end}, y_end = {y_end}")
-
-    return x_start, x_end, y_start, y_end
+    # this represents the tile coordinates to check
+    grid_matrix = [
+        [(250, 200), (360, 200), (480, 200), (590, 200)],
+        [(250, 400), (360, 400), (480, 400), (590, 400)],
+        [(250, 600), (360, 600), (480, 600), (590, 600)],
+        [(250, 800), (360, 800), (480, 800), (590, 800)]
+    ]
+    return grid_matrix
 
 
 if __name__ == '__main__':

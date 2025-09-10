@@ -1,6 +1,9 @@
 import pyautogui
 import time
 import pyscreeze
+import sys
+import keyboard
+import mouse
 
 TILE_SEGMENTS = 4
 
@@ -8,8 +11,16 @@ def main():
     window_positions = initialize_window_positions()
     grid = initialize_grid(window_positions[0], window_positions[1], window_positions[2], window_positions[3])
 
-    time.sleep(1)
-    game_loop(grid)
+    print("Press a to commence, or q to exit")
+    while True:
+        print(pyautogui.pixel(pyautogui.position()[0], pyautogui.position()[1]))
+
+        if keyboard.is_pressed("q"):
+            print("Exiting program")
+            sys.exit()
+
+        if keyboard.is_pressed("a"):
+            game_loop(grid)
 
 def game_loop(grid):
     # The tiles we want to keep the closest attention on
@@ -18,15 +29,17 @@ def game_loop(grid):
         if i == 0 or i % 4 == 0:
             top_row_of_tiles.append(grid[i])
 
-    counter = 0
-    while counter < 10:
+    while True:
         for coordinate in top_row_of_tiles:
-            print(pyautogui.pixel(coordinate[0], coordinate[1]))
             if pyscreeze.pixelMatchesColor(coordinate[0], coordinate[1], (0, 0, 0)):
-                pyautogui.moveTo(coordinate, duration=0)
-                pyautogui.click()
-        time.sleep(0.01)
-        counter += 1
+                pyautogui.mouseDown(x=coordinate[0], y=coordinate[1] + 50, button="left")
+                time.sleep(0.01)
+                pyautogui.mouseUp(x=coordinate[0], y=coordinate[1] + 50, button="left")
+                continue
+
+        if keyboard.is_pressed("q"):
+            print("Exiting program")
+            sys.exit()
 
 def initialize_grid(x_start, x_end, y_start, y_end):
     grid_x = []

@@ -1,7 +1,9 @@
 # Bithoven
 A random Python project that I took on for fun; it automatically plays the piano tiles game in order to get a high score!
+## Note: Requires root on Linux
 
-Link to the game:
+
+## Link to the game:
 https://www.gamesgames.com/game/magic-piano-tiles
 
 My highest score so far: **160**

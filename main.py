@@ -1,45 +1,54 @@
-import pyautogui
 import time
 import sys
 import keyboard
-import mouse
+from Xlib import display, X
+from Xlib.ext import xtest
 from PIL import ImageGrab
 
-def main():
-    grid_matrix = initialize_grid_matrix()
-    scan_for_black_tiles(grid_matrix)
-    game_loop(grid_matrix)
 
-def game_loop(grid_matrix):
+disp = display.Display()
+root = disp.screen().root
+
+def main():
+    time.sleep(1)
+    game_loop()
+
+def game_loop():
     while not keyboard.is_pressed('q'):
-        scan_for_black_tiles(grid_matrix)
+        scan_for_black_tiles()
     sys.exit()
 
-def scan_for_black_tiles(grid_matrix):
-    # bottom to top (priority)
-    screenshot = ImageGrab.grab()
-    for row in reversed(grid_matrix):
-        for x, y in row:
-            pixel = screenshot.getpixel((x, y))
-            if pixel == (0, 0, 0):
-                click_coordinate(x, y)
+def scan_for_black_tiles():
+    start = time.time()
 
-def click_coordinate(x, y, hold_duration = 0.01):
-    print(f"detected black tile coordinate: {(x, y)}")
-    pyautogui.mouseDown(x=x, y=y + 40, button="left")
-    pyautogui.mouseUp(button="left")
+    left = 251
+    top = 579
+    right = 589
+    bottom = 619
 
-# for now, i'll manually put in the tile positions, but it will be configurable later
-def initialize_grid_matrix():
-    # these get initialized to tuples later, but for readability this works for my purposes
+    screenshot = ImageGrab.grab(bbox=(left, top, right, bottom))
 
-    # this represents the tile coordinates to check
-    grid_matrix = [
-        [(250, 600), (360, 600), (480, 600), (590, 600)],
-        [(250, 800), (360, 800), (480, 800), (590, 800)]
-    ]
-    return grid_matrix
+    tile_x_positions = [251, 360, 480, 588]
+    y_position = 600
 
+    for x in tile_x_positions:
+        pixel = screenshot.getpixel((x - left, y_position - top))
+        if pixel == (0, 0, 0):
+            click_coordinate(x, y_position + 40)
+
+    end = time.time()
+    print(end - start)
+
+def click_coordinate(x, y):
+    root.warp_pointer(x, y)
+    disp.sync()
+    time.sleep(0.005)
+
+    xtest.fake_input(disp, X.ButtonPress, 1)
+    disp.sync()
+    time.sleep(0.03)
+    xtest.fake_input(disp, X.ButtonRelease, 1)
+    disp.sync()
 
 if __name__ == '__main__':
     main()
